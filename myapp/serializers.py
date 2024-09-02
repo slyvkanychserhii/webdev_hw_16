@@ -40,7 +40,7 @@ class SubTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.SubTask
         fields = '__all__'
-        read_only_fields = ['created_at']
+        read_only_fields = ['created_at', 'owner']
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -54,7 +54,7 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Task
         fields = '__all__'
-        read_only_fields = ['created_at']
+        read_only_fields = ['created_at', 'owner']
 
 
 # authentication

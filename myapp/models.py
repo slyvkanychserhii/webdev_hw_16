@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.functions import Lower
 from .helpers import end_of_month
@@ -52,6 +53,12 @@ class Task(models.Model):
         related_query_name='tasks',
         verbose_name='task categories',
         blank=True)
+    owner = models.ForeignKey(
+        to=User,
+        on_delete=models.CASCADE,
+        related_name='tasks',
+        related_query_name='task',
+        verbose_name='task owner')
 
     def __str__(self):
         return self.title
@@ -89,6 +96,12 @@ class SubTask(models.Model):
         related_name='subtasks',
         related_query_name='subtask',
         verbose_name='main task')
+    owner = models.ForeignKey(
+        to=User,
+        on_delete=models.CASCADE,
+        related_name='subtasks',
+        related_query_name='subtask',
+        verbose_name='subtask owner')
 
     def __str__(self):
         return self.title

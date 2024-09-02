@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from . import models
 from . import serializers
+from . import permissions
 
 
 class CustomPagination(PageNumberPagination):
@@ -66,10 +67,14 @@ class SubTaskListCreateView(generics.ListCreateAPIView):
     # http://127.0.0.1:8000/api/subtasks/?ordering=-created_at
     ordering_fields = ['created_at']
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
 
 class SubTaskRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.SubTask.objects.all()
     serializer_class = serializers.SubTaskSerializer
+    permission_classes = [permissions.IsOwnerOrReadOnly]
 
 
 class TaskListCreateView(generics.ListCreateAPIView):
@@ -93,10 +98,14 @@ class TaskListCreateView(generics.ListCreateAPIView):
     # http://127.0.0.1:8000/api/tasks/?ordering=-created_at
     ordering_fields = ['created_at']
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
 
 class TaskRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Task.objects.all()
     serializer_class = serializers.TaskSerializer
+    permission_classes = [permissions.IsOwnerOrReadOnly]
 
 
 class TaskStatisticsView(views.APIView):
@@ -115,6 +124,22 @@ class TaskStatisticsView(views.APIView):
         data['tasks_lt_now'] = models.Task.objects.filter(
             deadline__lt=timezone.now()).count()
         return Response(data, status=status.HTTP_200_OK)
+
+
+class UserSubTaskListView(generics.ListAPIView):
+    serializer_class = serializers.SubTaskSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return models.SubTask.objects.filter(owner=self.request.user)
+
+
+class UserTaskListView(generics.ListAPIView):
+    serializer_class = serializers.TaskSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return models.Task.objects.filter(owner=self.request.user)
 
 
 # authentication
